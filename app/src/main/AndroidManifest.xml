@@ -3,6 +3,9 @@
     package="com.example.hello3">
 
     <uses-permission android:name="android.permission.READ_SMS"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <uses-permission android:name="android.permission.INTENT"/>
+
 
     <application
         android:allowBackup="true"

@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
             myToast.show();
         }
         else {
-
+            readSMSMessage();
         }
     }
 
@@ -72,6 +72,10 @@ public class MainActivity extends AppCompatActivity {
             String body = c.getString(5);
             msg.setBody(body);
 
+            System.out.println("MessageId : "+msg.getMessageId());
+            System.out.println("ContactId : "+msg.getContactId());
+            System.out.println("Address : "+msg.getAddress());
+            System.out.println("body : "+msg.getBody());
         }
         return 0;
     }
