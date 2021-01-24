@@ -1,9 +1,13 @@
 package com.example.hello3;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,6 +22,7 @@ import java.util.Date;
 public class MainActivity extends AppCompatActivity {
 
     private Message msg;
+    final int PERMISSION_ALL = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,11 +41,42 @@ public class MainActivity extends AppCompatActivity {
             myToast.show();
         }
         else {
-            readSMSMessage();
+            //권한 허가 요청하기
+            if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS)!=PackageManager.PERMISSION_GRANTED){
+                // 이 권한이 필요한 이유를 설명해야하는가?
+                if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_SMS)){
+                    //다이어로그 같은 것을 띄워서 사용자에세 해당 권한이 필요한 이유를 설명
+                    //해당 설명이 끝난뒤 requestPermissions()함수를 호출하여 권한 허가를 요청해야함.
+                } else {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.READ_SMS},
+                            PERMISSION_ALL);
+                }
+            }
         }
     }
 
-    //SMS문자 메시지를 읽어오는 코드. 전체 메시지를 읽어오는 것으로 추정되며, 특정 번호에 대한 처리가 필요함.
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults){
+        switch(requestCode){
+            case PERMISSION_ALL:
+                if(grantResults.length>0
+                && grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                    //권한 허가
+                    readSMSMessage();
+                } else {
+                    //권한 거부
+                    //사용자가 해당 권한 거부시 해주어야할 동작 수행
+                    System.out.println("권한 거부");
+                }
+                return;
+
+
+        }
+    }
+
+    //SMS문자 메시지를 읽어오는 코드. 전체 메시지를 읽어는 것으로 추정되며, 특정 번호에 대한 처리가 필요함.
     public int readSMSMessage(){
         Uri allMessage = Uri.parse("content://sms");
         ContentResolver cr = getContentResolver();
