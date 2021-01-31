@@ -34,13 +34,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void bOnClick(View v) {
-        EditText et = (EditText)findViewById(R.id.number);
-        String s = et.getText().toString();
-        if(s.length()==0){
-            Toast myToast = Toast.makeText(this.getApplicationContext(),"숫자를 올바르게 입력해주세요.", Toast.LENGTH_SHORT);
-            myToast.show();
-        }
-        else {
             //권한 허가 요청하기
             if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS)!=PackageManager.PERMISSION_GRANTED){
                 // 이 권한이 필요한 이유를 설명해야하는가?
@@ -52,8 +45,11 @@ public class MainActivity extends AppCompatActivity {
                             new String[]{Manifest.permission.READ_SMS},
                             PERMISSION_ALL);
                 }
+            } else {
+                //권한을 가지고 있을 때 실행하는 메소드.
+                readSMSMessage2();
             }
-        }
+
     }
 
     @Override
@@ -64,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 if(grantResults.length>0
                 && grantResults[0]==PackageManager.PERMISSION_GRANTED){
                     //권한 허가
-                    readSMSMessage();
+                    System.out.println("권한 허가");
                 } else {
                     //권한 거부
                     //사용자가 해당 권한 거부시 해주어야할 동작 수행
@@ -113,6 +109,40 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("Address : "+msg.getAddress());
             System.out.println("body : "+msg.getBody());
         }
+        return 0;
+    }
+
+    public int readSMSMessage2(){
+        ContentResolver cr = getContentResolver();
+        Cursor cursor = cr.query(Uri.parse("content://sms/inbox"),null,"address=?",new String[]{"6504441122"},null);
+
+        int nameidx = cursor.getColumnIndex("address");
+        int dateidx = cursor.getColumnIndex("date");
+        int bodyidx = cursor.getColumnIndex("body");
+
+        StringBuilder result = new StringBuilder();
+        SimpleDateFormat formatter =  new SimpleDateFormat("MM/dd HH:mm");
+
+        //result.append("총 문자 갯수 : "+getCount()+"개\n");
+
+        int count = 0;
+        while(cursor.moveToNext()){
+            String name = cursor.getString(nameidx);
+            long date = cursor.getLong(dateidx);
+            String sdate = formatter.format(new Date(date));
+            String body = cursor.getString(bodyidx);
+
+            //날짜
+            result.append(name+"\n");
+            //내용
+            result.append(body+"\n");
+            result.append("String 테스트 중입니다.");
+
+        }
+        cursor.close();
+
+        TextView txtTest = (TextView)findViewById(R.id.textView3);
+        txtTest.setText(result);
         return 0;
     }
 
